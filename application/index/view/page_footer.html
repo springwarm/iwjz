@@ -1,0 +1,118 @@
+            </div>
+
+        </div>
+    </div>
+
+    <div class="page" id="routers-step-2-inner">
+        <header class="bar bar-nav">
+            <a class="button button-link button-nav pull-left back" href="/demos" data-transition="slide-out">
+                <span class="icon icon-left"></span>
+                返回
+            </a>
+            <h1 class="title">记一笔</h1>
+        </header>
+        <div class="content native-scroll content-padded">
+            <form action="" id = "edit_acc_form">
+                <div class="list-block ">
+                    <ul>
+                        <!-- Text inputs -->
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title label">流水类型</div>
+                                    <div class="item-input">
+                                        <select name = "acc_direction" id="acc_director" onchange="change_sorts()">
+                                            <option value="0">支出</option>
+                                            <option value="1">收入</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title label">类目</div>
+                                    <div class="item-input">
+                                        <select name = "sort_id" id="sorter">
+                                            <option value="5">早餐</option>
+                                            <option value="6">午餐</option>
+                                            <option value="7">晚餐</option>
+                                            <option value="2">住房</option>
+                                            <option value="3">衣服</option>
+                                            <option value="4">交通</option>
+                                            <option value="8">非正餐</option>
+                                            <option value="9">重要</option>
+                                            <option value="1">杂项</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title label">金额</div>
+                                    <div class="item-input">
+                                        <input type="text" name="acc_amount" placeholder="账目发生金额">
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title label">标签/项目</div>
+                                    <div class="item-input">
+                                        <input type="text" name="tag" placeholder="可填可不填" class="">
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Date -->
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title label">账目发生日期</div>
+                                    <div class="item-input">
+                                        <input type="text" name ="acc_date" placeholder="" id="datetime-picker" readonly="">
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Switch (Checkbox) -->
+
+                    </ul>
+                </div>
+                <div class="content-block">
+                    <div class="row">
+                        <div class="col-50"><a href="#" class="button button-big button-fill button-danger back">取消</a></div>
+                        <div class="col-50"><a href="#" class="button button-big button-fill button-success">提交</a></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+            <script>
+
+                // 修改类目
+                function change_sorts ()
+                {
+                    direct_id = $('#acc_director').val();
+                    if (direct_id == 1) {
+                        $('#sorter').html("<option value='11'>固定收入</option>");
+                    } else {
+                        $('#sorter').html(
+                                '<option value="5">早餐</option>' + '<option value="6">午餐</option><option value="7">晚餐</option>' +
+                                '<option value="8">非正餐</option><option value="3">衣服</option><option value="4">交通</option><option value="9">重要</option>' +
+                                '<option value="4">交通</option><option value="1">杂项</option><option value="2">住房</option>');
+                    }
+                }
+
+
+
+            </script>
+
+</div>

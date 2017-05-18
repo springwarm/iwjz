@@ -1,0 +1,329 @@
+<div class="content" data-type="">
+    <div class="buttons-tab fixed-tab" data-offset="44">
+        <a href="#tab1" class="tab-link active button">本月流水</a>
+        <a href="#tab2" class="tab-link button">分类汇总</a>
+    </div>
+
+    <div class="tabs">
+        <div id="tab1" class="tab active infinite-scroll">
+            <?php if (isset($list) && !empty($list)) : ?>
+            <div id="cart_list">
+                {volist name="list" id="vo"}
+                    <div class="card">
+                        <div class="card-header">{$vo['acc_direction_name']} <!-- <a href="#" class="icon icon-edit pull-right open-indicator"></a> --></div>
+                        <div class="card-content">
+                            <div class="card-content-inner">{$vo['inner_content']} <span onclick="delLog({$vo['log_id']})" class="icon icon-remove pull-right confirm-ok"  ></span></div>
+                        </div>
+                        <div class="card-footer">{$vo['acc_date']} </div>
+                    </div>
+                {/volist}
+                    </div>
+                {if condition="$is_next == true "}
+                <!-- 加载提示符 -->
+                        <div class="infinite-scroll-preloader">
+                            <div class="preloader">
+                            </div>
+                        </div>
+                    {else /}
+                        <div class="content-block-title">没有更多记录</div>
+
+                {/if}
+                <?php  else: ?>
+                     <div class="content-block-title text-center">木有流水，赶紧记上一笔吧！</div>
+
+                <?php  endif; ?>
+
+        </div>
+        <div id="tab2"  class="tab infinite-scroll">
+            <div class="content-block">
+                <div class="buttons-row">
+                    <a href="#tab1-1" class="tab-link button active">本月汇总</a>
+                    <a href="#tab1-2" class="tab-link button">自定义汇总</a>
+
+                </div>
+                <div class="tabs">
+                    <div class="active list-block media-list tab"  id="tab1-1">
+                        <div class="card">
+                            <div class="card-header">支出详情:</div>
+                            <div class="card-content">
+                                <div class="list-block media-list">
+                                    <ul>
+                                        <?php foreach ($statistics['this_month_statis']['list'] as $sort_id => $value) : ?>
+
+                                        <li class="item-content">
+                                            <div class="item-media">
+
+                                                <i class="iconfont  <?php echo $value['icon'];  ?>" style="font-size:24px;"></i>
+                                            </div>
+                                            <div class="item-inner">
+                                                <div class="item-title-row">
+                                                    <div class="item-title"><?php echo $value['sort_name'];   ?></div>
+                                                </div>
+                                                <div class="item-subtitle"><?php echo $value['money'];   ?>元</div>
+                                            </div>
+                                        </li>
+
+                                        <?php endforeach; ?>
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <div class="card-footer">
+                                <span style="width:100%">统计时间段:<?php echo $statistics['this_month_statis']['date']; ?></span>
+                                <br/>
+                                <span style="width:100%">总收入:<?php echo $statistics['this_month_statis']['total_income'];  ?>元<br/>总支出:<?php echo $statistics['this_month_statis']['total_pay'];  ?>元<br/>净收支: <?php echo $statistics['this_month_statis']['total_fee'];  ?> 元</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="  list-block media-list tab"  id="tab1-2">
+                        <div class="list-block ">
+                            <ul>
+                                <!-- Text inputs -->
+                                <li class=" row">
+                                    <div class="item-content ">
+                                        <div class="item-inner col-80">
+                                            <div class="item-title label">查询日期</div>
+                                            <div class="item-input">
+                                                <input type="text" placeholder="选择日期,月份0代表整年度" id="picker-name" value="" readonly="">
+                                            </div>
+                                        </div>
+                                        <div class="item-media col-20">
+                                            <a href="#" id="queryDate" class="button button-fill">查询</a>
+
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card" id="cart_query">
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '#queryDate', function () {
+        try {
+            var query_date = $('#picker-name').val();
+            $.post('/index/account_log/ajax_statistics',{query_date:query_date},function(response){
+                if ( typeof response === 'string' ) {
+                    response = JSON.parse(response);
+                }
+                if (response.err_code == 0) {
+                    $('#cart_query').html(response.data);
+                    cosole.log(response);
+                } else {
+                    $.alert(response.err_msg);
+                }
+
+            });
+        } catch (ex) {
+            $.alert(ex.message);
+            return false;
+        }
+    });
+    $(document).on('click','.button-success',function () {
+        try {
+            var data = $('#edit_acc_form').serializeArray();
+            if (data[2]['value'] === 0 || data[2]['value'] === '') {
+                throw new Error('请输入金额!');
+            }
+            if (data[4]['value'] === 0 || data[4]['value'] === '') {
+                throw new Error('请输入日期!');
+            }
+            $.post('/index/account_log/add',data,function(response){
+                if ( typeof response === 'string' ) {
+                    response = JSON.parse(response);
+                }
+                if (response.err_code !== 0) {
+                    throw new Error('添加失败!');
+                }
+                $.alert(response.err_msg);
+//                            window.location.reload(true);
+                self.location=document.referrer;
+            });
+
+        } catch (ex)  {
+            $.alert(ex.message);
+            return false;
+        }
+
+    });
+    function delLog(logId) {
+        $.confirm('确定删除吗?', function ()  {
+            data    = {log_id:logId};
+            $.post('/index/account_log/del',data,function(res){
+                if ( typeof res == 'string' ) {
+                    res = JSON.parse(res);
+                }
+                $.alert(res.err_msg);
+            });
+            window.location.href = location.href+'?time='+((new Date()).getTime());
+
+        });
+    }
+    $(document).on('click','.alert-text',function () {
+        $.alert('测试中 待开放');
+    });
+    $(document).on("pageInit", "#router-index", function(e) {
+
+    });
+    //无限滚动
+    $(document).on("pageInit", "#router-index", function(e, id, page) {
+        // picker初始化
+        $("#datetime-picker").datetimePicker({
+            toolbarTemplate: '<header class="bar bar-nav">\
+                  <button class="button button-link pull-right close-picker">确定</button>\
+                  <h1 class="title">选择日期和时间</h1>\
+                  </header>'
+        });
+
+        // 查询日期选择
+        $("#picker-name").picker({
+            toolbarTemplate: '<header class="bar bar-nav">\
+      <button class="button button-link pull-right close-picker">确定</button>\
+      <h1 class="title">请选择日期</h1>\
+      </header>',
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']
+                },
+                {
+                    textAlign: 'center',
+                    values: ['1', '2', '3', '4', '5', '6', '7','8', '9', '10', '11', '12','0']
+                }
+            ]
+        });
+
+
+
+
+
+
+        $(document).on('click','.open-indicator', function () {
+            $.showIndicator();
+            setTimeout(function () {
+                $.hideIndicator();
+            }, 2000);
+        });
+
+
+        //无限滚动
+        var loading = false;
+        // 每次加载添加多少条目
+        var itemsPerLoad = {$count};
+        // 最多可加载的条目
+        var maxItems = {$total};
+        if ($('#cart_list div').length==0) {
+            var lastIndex = 0;
+
+        } else {
+            var lastIndex = $('#cart_list div')[0].length;
+
+        }
+        var curr_page   = {$page};
+
+        $(document).on('infinite', function() {
+            // 如果正在加载，则退出
+            if (loading) return;
+            // 设置flag
+            loading = true;
+            var is_next = "{$is_next}";
+            var tabIndex = 0;
+            if($(this).find('.infinite-scroll.active').attr('id') == "tab1"){
+                tabIndex = 0;
+            }
+            if($(this).find('.infinite-scroll.active').attr('id') == "tab2"){
+                tabIndex = 1;
+            }
+            lastIndex = $('#cart_list').eq(tabIndex).children('div').length;
+            // 模拟1s的加载过程
+            loading = false;
+            if (!is_next) {
+                // 加载完毕，则注销无限加载事件，以防不必要的加载:$.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));多个无线滚动请自行根据自己代码逻辑判断注销时机
+                // 删除加载提示符
+                $.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));
+                $('.infinite-scroll-preloader').eq(tabIndex).hide();
+                return;
+            }
+            if (lastIndex >= maxItems) {
+                // 加载完毕，则注销无限加载事件，以防不必要的加载:$.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));多个无线滚动请自行根据自己代码逻辑判断注销时机
+                // 删除加载提示符
+                $.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));
+                $('.infinite-scroll-preloader').eq(tabIndex).hide();
+                return;
+            }
+
+            var data    = {page:curr_page+1,count:itemsPerLoad};
+
+            $.ajax({
+                'type':'POST',
+                'url':'/index/account_log/ajax_list',
+                'data':data,
+                'async':false,
+                success:function(response){
+                    if (typeof response == 'string') {
+                        response    = JSON.parse(response);
+                    }
+                    curr_page   = (response.err_code==0)?response.data.page:1;
+                    page_limit  = (response.data.count!='')?response.data.count:5;
+                    is_next     = response.data.is_next;
+                    // 生成新条目的HTML
+                    var html = '';
+                    var list_leng   = response.data.list.length;
+                    var str = '';
+                    for (var i = 0; i <= list_leng-1; i++) {
+                        var info = response.data.list[i];
+                         str = '<div class="card"><div class="card-header">'+info.acc_direction_name+'</div><div class="card-content"><div class="card-content-inner">'
+                        +info.inner_content+'<span onclick="delLog('+info.log_id+')"class="icon icon-remove pull-right confirm-ok"  ></span></div></div><div class="card-footer">'
+                        +info.acc_date+'</div></div>';
+
+                        html += str;
+
+                    }
+                    /*            for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
+                     html += '<li class="item-content" onClick="alert(1)"><div class="item-inner"><div class="item-title">新条目</div></div></li>';
+                     }*/
+                    // 添加新条目
+                    $('#cart_list').append(html);
+                    if (!is_next || response.err_code == -1) {
+                        // 加载完毕，则注销无限加载事件，以防不必要的加载:$.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));多个无线滚动请自行根据自己代码逻辑判断注销时机
+                        // 删除加载提示符
+                        $.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));
+                        $('.infinite-scroll-preloader').eq(tabIndex).hide();
+                        return;
+                    }
+                }
+            })
+
+            // 更新最后加载的序号
+            lastIndex =  $('#tab1').eq(tabIndex).children('div').children('div').length;
+            $.refreshScroller();
+
+
+/*            setTimeout(function() {
+                // 重置加载flag
+                loading = false;
+                if (lastIndex >= maxItems) {
+                    // 加载完毕，则注销无限加载事件，以防不必要的加载:$.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));多个无线滚动请自行根据自己代码逻辑判断注销时机
+                    // 删除加载提示符
+                    $('.infinite-scroll-preloader').eq(tabIndex).hide();
+                    return;
+                }
+                addItems(itemsPerLoad,lastIndex);
+                // 更新最后加载的序号
+                lastIndex =  $('#tab1').eq(tabIndex).children('div').length;
+                $.refreshScroller();
+            }, 1000);*/
+        });
+    });
+</script>

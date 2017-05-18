@@ -1,0 +1,53 @@
+<div class="list-block">
+    <ul>
+        <!-- Text inputs -->
+        <li>
+            <div class="item-content">
+                <div class="item-media"><i class="icon icon-form-password"></i></div>
+                <div class="item-inner">
+                    <div class="item-title label">密码</div>
+                    <div class="item-input">
+                        <input type="password" placeholder="公众号回复csmm即可获取初始密码" class="" name="password">
+                    </div>
+                </div>
+            </div>
+        </li>
+
+    </ul>
+</div>
+<div class="content-block">
+    <div class="row">
+        <div class="col-50"><a href="#" class="button button-big button-fill button-danger">取消</a></div>
+        <div class="col-50"><a href="#" id="submit_form" class="button button-big button-fill button-success">提交</a></div>
+    </div>
+</div>
+
+<script>
+    //对话框
+    var $content = $('page').find('.content');
+    $content.on('click','.button-success',function () {
+        $.alert('这是一段提示消息');
+    });
+
+    $('#submit_form').click(function () {
+        var pwd = $('input[name=password]').val();
+        if (pwd.length < 6) {
+            $.alert('密码长度必须大于6位');
+
+        }
+        $.post('',{password:pwd},function(response){
+            if ( typeof response == 'string' ) {
+                response = JSON.parse(response);
+            }
+            if (response.err_code == 0) {
+                $.alert('登录成功!');
+                window.location.href='/index/home/index';
+            } else {
+                $.alert('登录失败!');
+            }
+
+        });
+    });
+
+
+</script>

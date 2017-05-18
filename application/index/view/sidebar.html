@@ -1,0 +1,27 @@
+<div class="panel panel-left panel-reveal">
+    <div class="content-block">
+        <?php echo isset($greeting)?$greeting:''; ?>
+        <p><a href="#" class="button " onclick="logout()">退出 </a></p>
+        <p></p>
+        <!-- Click on link with "close-panel" class will close panel -->
+        <p style="text-align: center"><a href="#" class="close-panel">关闭</a></p>
+    </div>
+</div>
+<script>
+    function logout ()
+    {
+        $.get('/index/site/logout',function(res){
+            if (typeof res == 'string') {
+                res = JSON.parse(res);
+            }
+            if (res.err_code === 0) {
+                $.alert('退出成功!');
+                window.location.href    = '/index/site/login?openid='+res.data;
+            } else {
+                $.alert('退出失败!');
+            }
+        });
+    }
+
+
+</script>
